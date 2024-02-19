@@ -1,0 +1,118 @@
+#!/usr/bin/env groovy
+
+pipeline 
+{
+    agent any 
+    environment 
+	{
+	// initialize the variables
+		branch="${branchName}"
+		apis = ""
+ 	}
+
+    stages 
+	{
+	 stage('Initialize Repo')
+	  {  
+	   steps 
+		{
+		  script {
+			iPaasEnv = iPaasEnv.trim()
+			echo "${iPaasEnv}"
+
+			source_environment_hostname = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i hostname | cut -d '"' -f2 ''' ).trim()
+			source_environment_port = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i port | cut -d '"' -f2 ''' ).trim()
+		//	admin_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i admin_username | cut -d '"' -f2 ''' ).trim()
+			source_type = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i type | cut -d '"' -f2 ''' ).trim()
+			repo_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/repo.yml | grep -i user | cut -d '"' -f2 ''' ).trim()
+			wmioapi_url = "https://${source_environment_hostname}:${source_environment_port}"  
+		//	wmioapi_url = "https://${source_environment_hostname}"     
+			}
+			
+		echo "${source_environment_hostname}"
+		echo "${source_environment_port}"
+    		echo "${admin_user}"
+		echo "${source_type}"
+		echo "${repo_user}"
+		echo "${wmioapi_url}"
+		}
+	   }
+	stage('Sync Projects')
+	 {
+         steps {
+		            sh 'pwd'
+		            sh 'ls -lrt'
+
+		            
+                      		echo "Start exporting the apis"
+						script{
+							env.apiurl=wmioapi_url
+							echo "api url is : ${apiurl}"
+						}
+			                dir(repoName)
+						{ 
+		   			        sh 'pwd'
+	   	   			        sh 'ls -ltr' 		
+								echo "checkout"
+							script {
+							git branch: 'testJenkins',
+							credentialsId: 'webm_credentials',
+							url: 'https://code.medtronic.com/integration_tech/webmethods.io/${repoName}.git'
+
+							sh "ls -lat"
+				                }
+
+							echo "starting to export API"
+							
+							
+							sh '''
+								echo $(pwd)
+								#echo "api url : ${wmioapi_url}"
+								#env.apiurl=$wmioapi_url
+								echo $apiurl
+
+								cd $iPaasEnv
+								echo $(pwd)
+
+								apiDetails=$(curl --location $apiurl/rest/apigateway/apis?apiName=$apiName -H 'x-HTTP-Method-Override: GET' -H 'Content-Type: application/json' -u $admin_user:$admin_password)
+
+								apiId=$(echo "$apiDetails" | grep -o '"id":"[^"]*' | grep -o '[^"]*$')
+
+								echo "Exporting API with $apiName with apiId $apiId."
+								
+  								#echo $(ls -ltr)
+
+								curl -s $apiurl/rest/apigateway/archive?apis=$apiId --output $apiName.zip -H 'Content-Type:application/json' -H 'x-HTTP-Method-Override:GET'  -u $admin_user:$admin_password
+
+								echo $(ls -ltr)
+
+								## unzip -o $API_DIR/apis/$apiName.zip -d $API_DIR/
+							 
+								
+								echo "Checking in the repo to push the file"
+								
+								echo $(pwd)
+								git add $apiName.zip
+								git config --global user.name "shilpm2"
+                				git config --global user.email "shilpm2@locahost.com"
+               					
+
+                				git commit -m "Add $apiName to repo"
+								
+								sh '''
+
+                				withCredentials([gitUsernamePassword(credentialsId: 'webm_credentials', gitToolName: 'Default')]) {
+                    			sh "git push -u origin testJenkins"
+								}
+							
+
+							//sh 'chmod +x ../scripts/*.sh'
+							//sh "source ../scripts/export_API.sh; export_api '${apiName}' '${wmioapi_url}' '${admin_user}' '${admin_password}' "
+						                       
+
+						}
+                     
+				}
+			}
+		}
+ }

@@ -1,0 +1,103 @@
+#!/usr/bin/env groovy
+
+pipeline 
+{
+    agent any 
+    environment 
+	{
+	// initialize the variables
+		branch="${branchName}"
+		apis = ""
+ 	}
+
+    stages 
+	{
+	 stage('Initialize Repo')
+	  {  
+	   steps 
+		{
+		  script {
+			iPaasEnv = iPaasEnv.trim()
+			echo "${iPaasEnv}"
+
+			source_environment_hostname = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i hostname | cut -d '"' -f2 ''' ).trim()
+			source_environment_port = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i port | cut -d '"' -f2 ''' ).trim()
+		//	admin_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i admin_username | cut -d '"' -f2 ''' ).trim()
+			source_type = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i type | cut -d '"' -f2 ''' ).trim()
+			repo_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/repo.yml | grep -i user | cut -d '"' -f2 ''' ).trim()
+			wmioapi_url = "https://${source_environment_hostname}:${source_environment_port}"  
+		//	wmioapi_url = "https://${source_environment_hostname}"     
+			}
+			
+		echo "${source_environment_hostname}"
+		echo "${source_environment_port}"
+    		echo "${admin_user}"
+		echo "${source_type}"
+		echo "${repo_user}"
+		echo "${wmioapi_url}"
+		}
+	   }
+	stage('Sync Projects')
+	 {
+         steps {
+		            sh 'pwd'
+		            sh 'ls -lrt'
+
+		            script{
+                      		echo "Start importing the apis"
+				 
+							sh "ls -lat"
+
+			                dir(repoName)
+						{ 
+		   			        sh 'pwd'
+	   	   			        sh 'ls -ltr' 		
+								echo "checkout"
+							script {
+							git branch: 'testJenkins',
+							credentialsId: 'webm_credentials',
+							url: 'https://code.medtronic.com/integration_tech/webmethods.io/${repoName}.git'
+
+							sh "ls -lat"
+				}
+			
+						echo "API Check ${apiName}"
+						if ("${apiName}" == 'All')
+						{
+						echo "Select all APIs for wmioAPI"
+						apis = sh (script: ''' ls wmioAPI -m ''', returnStdout: true).trim()
+						echo "API is : ${apis}"
+						apis = apis.replaceAll( '.zip', '' )
+						echo "API after replace is : ${apis}"
+					      	}
+					  	else 
+  					    	{
+						apis = "${apiName}"
+						echo "API is : ${apis}"
+						}
+
+						echo "apis before split is : ${apis}"
+					        def apiNames = apis.split(',')
+					        for(apis in apiNames){
+   						    apis = apis.trim() 
+						      echo "$apis"
+						      def exists = fileExists "./wmioAPI/${apis}.zip"
+							echo "${exists}"
+							if (exists) {
+                     					echo "Importing asset ..."
+							echo "API found and importing to ${wmioapi_url}"
+							sh 'chmod +x ../scripts/*.sh'
+							sh "source ../scripts/import_API.sh; import_api '${apis}' '${wmioapi_url}' '${admin_user}' '${admin_password}' "
+						            }           
+				        
+					else {
+						echo "API ${apiName} not found in Repo ${repoName}"
+							}
+						}
+				}
+			}
+		}
+ }
+        
+	}
+}
