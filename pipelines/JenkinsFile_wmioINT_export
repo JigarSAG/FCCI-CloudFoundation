@@ -22,7 +22,7 @@ pipeline
 			echo "${iPaasEnv}"
 			echo "configs/${iPaasEnv}/${wmioenv}.yml"
 			
-			source_environment_hostname = sh ( returnStdout: true, script: '''cat FCCI-CloudFoundation/configs/${iPaasEnv}/${wmioenv}.yml | grep -i hostname | cut -d '"' -f2 ''' ).trim()
+			source_environment_hostname = sh ( returnStdout: true, script: '''cat configs/wmioINT/DEV.yml | grep -i hostname | cut -d '"' -f2 ''' ).trim()
 	
 			}
 			
