@@ -7,8 +7,7 @@ pipeline
 	{
 	// initialize the variables
 		branch="${branchName}"
-		apis = ""
-		echo "${branch}"
+		apis = ""		
  	}
 
     stages 
