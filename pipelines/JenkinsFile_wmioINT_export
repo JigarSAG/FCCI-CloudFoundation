@@ -22,23 +22,14 @@ pipeline
 			echo "${iPaasEnv}"
 
 			source_environment_hostname = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i hostname | cut -d '"' -f2 ''' ).trim()
-		//	source_environment_port = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i port | cut -d '"' -f2 ''' ).trim()
-		//	admin_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i admin_username | cut -d '"' -f2 ''' ).trim()
-		//	source_type = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i type | cut -d '"' -f2 ''' ).trim()
-		//	repo_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/repo.yml | grep -i user | cut -d '"' -f2 ''' ).trim()
-		//	LOCAL_DEV_URL = "https://${source_environment_hostname}:${source_environment_port}"
-        	//    onprem_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/onprem.yml | grep -i onprem_username | cut -d '"' -f2 ''' ).trim()  
-      		//    onprem_pwd = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/onprem.yml | grep -i onprem_pwd | cut -d '"' -f2 ''' ).trim() 
-        	//    onpremurl = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/onprem.yml | grep -i onprem_url | cut -d '"' -f2 ''' ).trim()
-        	//    onpremport = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/onprem.yml | grep -i onprem_prt | cut -d '"' -f2 ''' ).trim()
-        	//    inturl="${onpremurl}:${onpremport}"
-		
-			source_environment_hostname = "fccipdv.int-aws-us.webmethods.io"
-			source_environment_port = "443"
-			admin_user="pdvservice"
-			source_type="dev"
-			repo_user="JigarBharat.Shah@Softwareag.com"
+			source_environment_port = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i port | cut -d '"' -f2 ''' ).trim()
+			admin_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i admin_username | cut -d '"' -f2 ''' ).trim()
+			source_type = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i type | cut -d '"' -f2 ''' ).trim()
+			repo_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/repo.yml | grep -i user | cut -d '"' -f2 ''' ).trim()
 			LOCAL_DEV_URL = "https://${source_environment_hostname}:${source_environment_port}"
+        	     
+		
+			
 			onprem_user="Administrator"
 			onprem_pwd="manage"
 			inturl="http://localhost:5401"
