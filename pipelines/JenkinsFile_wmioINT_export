@@ -20,7 +20,7 @@ pipeline
 			iPaasEnv = "wmioINT"
 			wmioenv = "DEV"
 			echo "${iPaasEnv}"
-			echo "Current workspace is $WORKSPACE"
+			echo "Current Branch is ${branchName}"
 
 		//	source_environment_hostname = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i hostname | cut -d '"' -f2 ''' ).trim()
 		//	source_environment_port = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i port | cut -d '"' -f2 ''' ).trim()
