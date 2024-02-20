@@ -60,7 +60,7 @@ pipeline
 	 {
          steps {
 			    echo "Start exporting the project"
-		            pwd
+		            sh 'cd'
 			    echo "Start exporting the project"
 		            sh 'ls -lrt'
 
