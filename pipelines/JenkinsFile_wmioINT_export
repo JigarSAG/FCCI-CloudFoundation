@@ -20,7 +20,8 @@ pipeline
 			iPaasEnv = "wmioINT"
 			wmioenv = "DEV"
 			echo "${iPaasEnv}"
-
+			echo "configs/${iPaasEnv}/${wmioenv}.yml"
+			
 			source_environment_hostname = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i hostname | cut -d '"' -f2 ''' ).trim()
 			source_environment_port = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i port | cut -d '"' -f2 ''' ).trim()
 		//	admin_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i admin_username | cut -d '"' -f2 ''' ).trim()
