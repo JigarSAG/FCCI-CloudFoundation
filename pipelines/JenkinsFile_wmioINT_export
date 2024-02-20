@@ -21,15 +21,20 @@ pipeline
 			wmioenv = "DEV"
 			echo "${iPaasEnv}"
 
-			source_environment_hostname = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i hostname | cut -d '"' -f2 ''' ).trim()
-			source_environment_port = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i port | cut -d '"' -f2 ''' ).trim()
-			admin_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i admin_username | cut -d '"' -f2 ''' ).trim()
-			source_type = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i type | cut -d '"' -f2 ''' ).trim()
-			repo_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/repo.yml | grep -i user | cut -d '"' -f2 ''' ).trim()
-			LOCAL_DEV_URL = "https://${source_environment_hostname}:${source_environment_port}"
-        	     
-		
 			
+			source_environment_hostname = sh ( returnStdout: true, script: '''cat configs/wmioINT/DEV.yml | grep -i hostname | cut -d '"' -f2 ''' ).trim()
+			source_environment_port = sh ( returnStdout: true, script: '''cat configs/wmioINT/DEV.yml | grep -i port | cut -d '"' -f2 ''' ).trim()
+			admin_user = sh ( returnStdout: true, script: '''cat configs/wmioINT/DEV.yml | grep -i admin_username | cut -d '"' -f2 ''' ).trim()
+			source_type = sh ( returnStdout: true, script: '''cat configs/wmioINT/DEV.yml | grep -i type | cut -d '"' -f2 ''' ).trim()
+			//repo_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/repo.yml | grep -i user | cut -d '"' -f2 ''' ).trim()
+			LOCAL_DEV_URL = "https://${source_environment_hostname}:${source_environment_port}"
+        //    onprem_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/onprem.yml | grep -i onprem_username | cut -d '"' -f2 ''' ).trim()  
+        //    onprem_pwd = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/onprem.yml | grep -i onprem_pwd | cut -d '"' -f2 ''' ).trim() 
+        //    onpremurl = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/onprem.yml | grep -i onprem_url | cut -d '"' -f2 ''' ).trim()
+        //    onpremport = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/onprem.yml | grep -i onprem_prt | cut -d '"' -f2 ''' ).trim()
+        //    inturl="${onpremurl}:${onpremport}"
+		
+			repo_user="JigarBharat.Shah@Softwareag.com"
 			onprem_user="Administrator"
 			onprem_pwd="manage"
 			inturl="http://localhost:5401"
@@ -46,119 +51,5 @@ pipeline
 		
 		}
 	   }
-
-	stage('Export Projects')
-	 {
-         steps {
-			    echo "Start exporting the project"
-		            sh 'pwd'
-			    echo "Start exporting the project"
-		            sh 'ls -lrt'
-
-		            
-                      		echo "Start exporting the project"
-						script{
-                            
-							env.premurl=inturl
-							echo "on-prem url is : ${premurl}"
-							
-							env.ioIntUrl=LOCAL_DEV_URL
-							echo "io INT url is : ${ioIntUrl}"
-
-			                dir(repoName)
-							{ 
-		   			        sh 'pwd'
-	   	   			        sh 'ls -ltr' 		
-								echo "checkout"
-							script {
-								git branch: '${branchName}',
-								credentialsId: 'webm_credentials',
-								url: 'https://github.com/JigarSAG/FCCI-CloudFoundation.git'
-
-								sh "ls -lat"
-				                	}
-							
-							
-								if ("${projectName}" == '')
-								{
-									echo "Project name is not given"
-                                	exit 0
-								}
-                            	else
-								{
-								echo "Project name is ${projectName}"
-								
-								sh '''
-								echo $(pwd)
-								echo $premurl
-
-								cd $iPaasEnv
-								echo $(pwd)
-								echo $(ls -lrt)
-
-                                cd projectExports_prd
-								echo $(pwd)
-								echo $(ls -lrt)
-
-								echo ${ioIntUrl}
-								echo ${premurl}
-
-                        		##curl --location 'http://msplwa118.corp.medtronic.com:5555/restv2/test.resources:concat/callUrl?##projectName=CID_Demo&ioUrl=https%3A%2F%2Fmedtronicdevus.int-aws-us.webmethods.io' --header 'Authorization: Basic ##QWRtaW5pc3RyYXRvcjptYW5hZ2U=' --data ''
-								##restv2/mdt_exportproject.resources:exportProject
-
-		                curl --location "$premurl/restv2/mdt_exportproject.resources:exportProject/exportProject?projectName=$projectName&ioUrl=$ioIntUrl&ioenv=$wmioenv" --output ${projectName}.zip -H 'Content-Type:application/json' -H 'x-HTTP-Method-Override:GET'
-
-						ls -lrt
-						echo "${projectName}".zip
-						cat  "${projectName}".zip | wc -l
-
-						projContent=$(cat  "${projectName}".zip | wc -l)
-						#projContent=$(zcat < "${projectName}".zip | grep -o '"statusofproject":"[^"]*' | grep -o '[^"]*$')
-						echo $projContent
-						
-						##if [ ! -z "$projContent" ];   then
-						 if [ $projContent -eq 2 ];   then
-							echo "Export failed" 
-							rm ${projectName}.zip
-							ls -lrt
-							exit 1
-
-						else
-
-							echo "Export Succeeded"
-							ls -lrt
-						
-						fi
-
-
-								echo "Export Succeeded"
-								echo "Check-in the file"
-								
-								echo $(pwd)
-								echo $(ls -lrt)
-
-								git add $projectName.zip
-								git config --global user.name "shilpm2"
-                				git config --global user.email "shilpm2@locahost.com"
-               					
-
-                				git commit -m "Add $projectName to repo"
-								
-								sh '''
-
-                				withCredentials([gitUsernamePassword(credentialsId: 'webm_credentials', gitToolName: 'Default')]) {
-                    			sh "git push -u origin $branchName"
-								}
-							
-								}
-							//sh 'chmod +x ../scripts/*.sh'
-				//sh "source ../scripts/export_API.sh; export_api '${apiName}' '${wmioapi_url}' '${admin_user}' '${admin_password}' "
-						                       
-
-						}
-					}
-                     
-				}
-			}
-		}
+	}
  }
