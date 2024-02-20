@@ -59,6 +59,7 @@ pipeline
 	stage('Export Projects')
 	 {
          steps {
+					echo "Start exporting the project"
 		            sh 'pwd'
 		            sh 'ls -lrt'
 
