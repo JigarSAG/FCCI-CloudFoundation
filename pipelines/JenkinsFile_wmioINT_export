@@ -52,4 +52,24 @@ pipeline
 		}
 	   }
 	}
+	
+	stage('Export Projects')
+	 {
+         steps {
+		            sh 'pwd'
+		            sh 'ls -lrt'
+
+		            
+                      		echo "Start exporting the project"
+						script{
+                            
+							env.premurl=inturl
+							echo "on-prem url is : ${premurl}"
+							
+							env.ioIntUrl=LOCAL_DEV_URL
+							echo "io INT url is : ${ioIntUrl}"
+							}
+				
+				}
+		}
  }
