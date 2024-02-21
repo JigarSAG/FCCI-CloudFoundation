@@ -100,7 +100,12 @@ pipeline
 								echo $(pwd)
 								echo $(ls -lrt)
 
-                                cd project
+                               					cd project
+								echo $(pwd)
+								echo $(ls -lrt)
+
+								mkdir -p -- "$projectName"
+								cd $projectName
 								echo $(pwd)
 								echo $(ls -lrt)
 
