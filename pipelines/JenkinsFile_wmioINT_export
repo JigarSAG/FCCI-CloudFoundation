@@ -107,7 +107,7 @@ pipeline
 								echo ${ioIntUrl}
 								echo ${premurl}
 
-                        			importedName=$(curl --location --request POST 'https://fccipdv.int-aws-us.webmethods.io/apis/v1/rest/projects/test_audit/export' \
+                        			importedName=$(curl --location --request POST 'https://fccipdv.int-aws-us.webmethods.io/apis/v1/rest/projects/${projectName}/export' \
 											--header 'Authorization: Basic UERWU2VydmljZTpNemRaUFoyTFR4cHRZWSNnMTExZjIzODc0bmtzZGY1JWdzZGJm')
 
 						download_link=$(echo "$importedName" | grep -o '"download_link":"[^"]*' | grep -o '[^"]*$')
