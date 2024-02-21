@@ -75,7 +75,7 @@ pipeline
 	   	   			        sh 'ls -ltr' 		
 								echo "checkout"
 							script {
-								git branch: '${branchName}',
+								git branch: 'main',
 								credentialsId: 'webm_credentials',
 								url: 'https://github.com/JigarSAG/FCCI-CloudFoundation.git'
 
