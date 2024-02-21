@@ -96,9 +96,7 @@ pipeline
 								echo $(pwd)
 								echo $premurl
 
-								cd $iPaasEnv
-								echo $(pwd)
-								echo $(ls -lrt)
+								
 
                                 cd projectExports_prd
 								echo $(pwd)
