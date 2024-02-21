@@ -104,11 +104,6 @@ pipeline
 								echo $(pwd)
 								echo $(ls -lrt)
 
-								mkdir -p -- "$projectName"
-								cd $projectName
-								echo $(pwd)
-								echo $(ls -lrt)
-
 								echo ${ioIntUrl}
 								echo ${premurl}
 
