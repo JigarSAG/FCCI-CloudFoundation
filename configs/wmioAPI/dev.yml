@@ -1,5 +1,0 @@
-tenant:
-  hostname: "fccipdv.int-aws-us.webmethods.io"   # webMethodsIO Integration hostname or ip address
-  port: "443"                                       # webMethodsIO Integration port
-  admin_username: "PDVService"                     # webMethodsIO Integration user  
-  type: "dev"                                         #DEV
