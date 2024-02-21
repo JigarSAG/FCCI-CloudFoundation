@@ -151,9 +151,7 @@ pipeline
 								
 								sh '''
 
-                				withCredentials([gitUsernamePassword(credentialsId: 'webm_credentials', gitToolName: 'Default')]) {
-                    			sh "git push -u origin $branchName"
-								}
+                				sh "git push -u origin DEV"
 							
 								}
 							//sh 'chmod +x ../scripts/*.sh'
