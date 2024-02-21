@@ -151,7 +151,9 @@ pipeline
 								
 								sh '''
 
-                				sh "git push -u origin DEV"
+                				withCredentials([gitUsernamePassword(credentialsId: 'JigarSAG', gitToolName: 'Default')]) {
+                    						sh "git push -u origin DEV"
+								}
 							
 								}
 							//sh 'chmod +x ../scripts/*.sh'
