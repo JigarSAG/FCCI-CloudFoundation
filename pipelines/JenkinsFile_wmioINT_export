@@ -37,7 +37,7 @@ pipeline
 			repo_user="JigarBharat.Shah@Softwareag.com"
 			onprem_user="Administrator"
 			onprem_pwd="manage"
-			inturl="http://localhost:5401"
+			inturl="http://SAG-FMJB2F3:5401"
 			}
 			
 		echo "${source_environment_hostname}"
