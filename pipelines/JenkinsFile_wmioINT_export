@@ -75,7 +75,7 @@ pipeline
 	   	   			        sh 'ls -ltr' 		
 								echo "checkout"
 							script {
-								git branch: 'main',
+								git branch: 'DEV',
 								credentialsId: 'webm_credentials',
 								url: 'https://github.com/JigarSAG/FCCI-CloudFoundation.git'
 
@@ -96,9 +96,11 @@ pipeline
 								echo $(pwd)
 								echo $premurl
 
-								
+								cd export
+								echo $(pwd)
+								echo $(ls -lrt)
 
-                                cd projectExports_prd
+                                cd project
 								echo $(pwd)
 								echo $(ls -lrt)
 
