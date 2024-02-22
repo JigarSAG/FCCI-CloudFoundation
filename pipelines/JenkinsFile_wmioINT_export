@@ -114,7 +114,7 @@ pipeline
 
 						echo download_link
 						##curl --location "$download_link" --output ${projectName}.zip -H 'Content-Type:application/json' -H 'x-HTTP-Method-Override:GET'
-						curl --location --request GET '$download_link' --output ${projectName}.zip
+						curl --location --request GET ''$download_link'' --output ${projectName}.zip
 
 						ls -lrt
 						echo "${projectName}".zip
