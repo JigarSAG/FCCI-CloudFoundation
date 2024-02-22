@@ -81,10 +81,8 @@ pipeline
 
 									echo ${ioIntUrl}
 
-									tenantPwd = credentialsId: 'devSystemUser'
-									
 									importedName=$(curl --location --request POST ''${ioIntUrl}'/apis/v1/rest/projects/'${projectName}'/export' \
-												--header 'Authorization: '${tenantPwd}'')
+												--header 'Authorization: 'Basic UERWU2VydmljZTpNemRaUFoyTFR4cHRZWSNnMTExZjIzODc0bmtzZGY1JWdzZGJm')
 
 									download_link=$(echo "$importedName" | grep -o '"download_link":"[^"]*' | grep -o '[^"]*$')
 
