@@ -39,7 +39,8 @@ pipeline
          steps {
 		            sh 'pwd'
 		            sh 'ls -lrt'
-
+					env.ioIntUrl=LOCAL_DEV_URL
+					
                     echo "Start exporting the project"
 						script{
                             
@@ -80,7 +81,7 @@ pipeline
 
 									echo ${ioIntUrl}
 
-									importedName=$(curl --location --request POST ''${LOCAL_DEV_URL}'/apis/v1/rest/projects/'${projectName}'/export' \
+									importedName=$(curl --location --request POST ''${ioIntUrl}'/apis/v1/rest/projects/'${projectName}'/export' \
 												--header 'Authorization: Basic UERWU2VydmljZTpNemRaUFoyTFR4cHRZWSNnMTExZjIzODc0bmtzZGY1JWdzZGJm')
 
 									download_link=$(echo "$importedName" | grep -o '"download_link":"[^"]*' | grep -o '[^"]*$')
