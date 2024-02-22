@@ -16,38 +16,19 @@ pipeline
 	  {  
 	   steps 
 		{
+		  echo "Start Initialize Repo"
+		  
 		  script {
-			iPaasEnv = "wmioINT"
-			wmioenv = "DEV"
-			echo "${iPaasEnv}"
-
-			
-			source_environment_hostname = sh ( returnStdout: true, script: '''cat configs/wmioINT/DEV.yml | grep -i hostname | cut -d '"' -f2 ''' ).trim()
-			source_environment_port = sh ( returnStdout: true, script: '''cat configs/wmioINT/DEV.yml | grep -i port | cut -d '"' -f2 ''' ).trim()
-			admin_user = sh ( returnStdout: true, script: '''cat configs/wmioINT/DEV.yml | grep -i admin_username | cut -d '"' -f2 ''' ).trim()
-			source_type = sh ( returnStdout: true, script: '''cat configs/wmioINT/DEV.yml | grep -i type | cut -d '"' -f2 ''' ).trim()
-			//repo_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/repo.yml | grep -i user | cut -d '"' -f2 ''' ).trim()
-			LOCAL_DEV_URL = "https://${source_environment_hostname}:${source_environment_port}"
-        //    onprem_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/onprem.yml | grep -i onprem_username | cut -d '"' -f2 ''' ).trim()  
-        //    onprem_pwd = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/onprem.yml | grep -i onprem_pwd | cut -d '"' -f2 ''' ).trim() 
-        //    onpremurl = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/onprem.yml | grep -i onprem_url | cut -d '"' -f2 ''' ).trim()
-        //    onpremport = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/onprem.yml | grep -i onprem_prt | cut -d '"' -f2 ''' ).trim()
-        //    inturl="${onpremurl}:${onpremport}"
-		
-			repo_user="JigarBharat.Shah@Softwareag.com"
-			onprem_user="Administrator"
-			onprem_pwd="manage"
-			inturl="http://SAG-FMJB2F3:5401"
+				source_environment_hostname = sh ( returnStdout: true, script: '''cat configs/wmioINT/DEV.yml | grep -i hostname | cut -d '"' -f2 ''' ).trim()
+				source_environment_port = sh ( returnStdout: true, script: '''cat configs/wmioINT/DEV.yml | grep -i port | cut -d '"' -f2 ''' ).trim()
+				admin_user = sh ( returnStdout: true, script: '''cat configs/wmioINT/DEV.yml | grep -i admin_username | cut -d '"' -f2 ''' ).trim()			
+				LOCAL_DEV_URL = "https://${source_environment_hostname}:${source_environment_port}"        
 			}
 			
-		echo "${source_environment_hostname}"
-		echo "${source_environment_port}"
-    	echo "${admin_user}"
-		echo "${source_type}"
-		echo "${repo_user}"
-        echo "${onprem_user}"
-		echo "${onprem_pwd}"
-		echo "${inturl}"
+			echo "${source_environment_hostname}"
+			echo "${source_environment_port}"
+			echo "${admin_user}"
+			echo "${LOCAL_DEV_URL}"
 		
 		}
 	   }
@@ -59,21 +40,16 @@ pipeline
 		            sh 'pwd'
 		            sh 'ls -lrt'
 
-		            
-                      		echo "Start exporting the project"
+                    echo "Start exporting the project"
 						script{
                             
-							env.premurl=inturl
-							echo "on-prem url is : ${premurl}"
 							
-							env.ioIntUrl=LOCAL_DEV_URL
-							echo "io INT url is : ${ioIntUrl}"
 
 			                dir('FCCI-CloudFoundation')
 							{ 
 		   			        sh 'pwd'
 	   	   			        sh 'ls -ltr' 		
-								echo "checkout"
+							echo "checkout Assets from DEV"
 							script {
 								git branch: 'DEV',
 								credentialsId: 'JigarSAG',
@@ -90,81 +66,72 @@ pipeline
 								}
                             	else
 								{
-								echo "Project name is ${projectName}"
-								
-								sh '''
-								echo $(pwd)
-								echo $premurl
+									echo "Project name is ${projectName}"
+									
+									sh '''								
 
-								cd export
-								echo $(pwd)
-								echo $(ls -lrt)
+									cd export
+									echo $(pwd)
+									echo $(ls -lrt)
 
-                               					cd project
-								echo $(pwd)
-								echo $(ls -lrt)
+									cd project
+									echo $(pwd)
+									echo $(ls -lrt)
 
-								echo ${ioIntUrl}
-								echo ${premurl}
+									echo ${ioIntUrl}
 
-                        			importedName=$(curl --location --request POST 'https://fccipdv.int-aws-us.webmethods.io/apis/v1/rest/projects/'${projectName}'/export' \
-											--header 'Authorization: Basic UERWU2VydmljZTpNemRaUFoyTFR4cHRZWSNnMTExZjIzODc0bmtzZGY1JWdzZGJm')
+									importedName=$(curl --location --request POST ''${LOCAL_DEV_URL}'/apis/v1/rest/projects/'${projectName}'/export' \
+												--header 'Authorization: Basic UERWU2VydmljZTpNemRaUFoyTFR4cHRZWSNnMTExZjIzODc0bmtzZGY1JWdzZGJm')
 
-						download_link=$(echo "$importedName" | grep -o '"download_link":"[^"]*' | grep -o '[^"]*$')
+									download_link=$(echo "$importedName" | grep -o '"download_link":"[^"]*' | grep -o '[^"]*$')
 
-						echo download_link
-						##curl --location "$download_link" --output ${projectName}.zip -H 'Content-Type:application/json' -H 'x-HTTP-Method-Override:GET'
-						curl --location --request GET ''$download_link'' --output ${projectName}.zip
+									echo download_link
+									##curl --location "$download_link" --output ${projectName}.zip -H 'Content-Type:application/json' -H 'x-HTTP-Method-Override:GET'
+									curl --location --request GET ''$download_link'' --output ${projectName}.zip
 
-						ls -lrt
-						echo "${projectName}".zip
-						cat  "${projectName}".zip | wc -l
+									ls -lrt
+									echo "${projectName}".zip
+									cat  "${projectName}".zip | wc -l
 
-						projContent=$(cat  "${projectName}".zip | wc -l)
-						#projContent=$(zcat < "${projectName}".zip | grep -o '"statusofproject":"[^"]*' | grep -o '[^"]*$')
-						echo $projContent
-						
-						##if [ ! -z "$projContent" ];   then
-						 if [ $projContent -eq 2 ];   then
-							echo "Export failed" 
-							rm ${projectName}.zip
-							ls -lrt
-							exit 1
+									projContent=$(cat  "${projectName}".zip | wc -l)
+									#projContent=$(zcat < "${projectName}".zip | grep -o '"statusofproject":"[^"]*' | grep -o '[^"]*$')
+									echo $projContent
+									
+									##if [ ! -z "$projContent" ];   then
+									 if [ $projContent -eq 2 ];   then
+										echo "Export of Preoect failed" 
+										rm ${projectName}.zip
+										ls -lrt
+										exit 1
 
-						else
+									else
+										echo "Export Succeeded"
+										ls -lrt								
+									fi
 
-							echo "Export Succeeded"
-							ls -lrt
-						
-						fi
+											echo "Project Exported Successfully"
+											
+											echo "Project File Checkin Started"
+											
+											echo $(pwd)
+											echo $(ls -lrt)
 
+											git add $projectName.zip
+											git config --global user.name "Jigar Shah"
+											git config --global user.email "jish@locahost.com"
+											
 
-								echo "Export Succeeded"
-								echo "Check-in the file"
-								
-								echo $(pwd)
-								echo $(ls -lrt)
+											git commit -m "Add $projectName to repo"
+											
+											sh '''
 
-								git add $projectName.zip
-								git config --global user.name "shilpm2"
-                				git config --global user.email "shilpm2@locahost.com"
-               					
-
-                				git commit -m "Add $projectName to repo"
-								
-								sh '''
-
-                				withCredentials([gitUsernamePassword(credentialsId: 'JigarSAG', gitToolName: 'Default')]) {
-                    						sh "git push -u origin DEV"
-								}
-							
-								}
-							
-						                       
-
+											withCredentials([gitUsernamePassword(credentialsId: 'JigarSAG', gitToolName: 'Default')]) {
+														sh "git push -u origin DEV"													
+											}
+											echo "Project File Checkin Started"		
+								}	
 						}
-					}                     
-				
+					}               
 		}
 	}	
  }
