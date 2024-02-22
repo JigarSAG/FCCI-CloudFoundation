@@ -16,7 +16,7 @@ pipeline
 	  {  
 	   steps 
 		{
-		  echo "Start Initialize Repo"
+		  echo "----------------------------------Start Initialize Repo----------------------------------"
 		  
 		  script {
 				source_environment_hostname = sh ( returnStdout: true, script: '''cat configs/wmioINT/DEV.yml | grep -i hostname | cut -d '"' -f2 ''' ).trim()
@@ -40,7 +40,7 @@ pipeline
 		            sh 'pwd'
 		            sh 'ls -lrt'
 					
-                    echo "Start exporting the project"
+                    echo "----------------------------------Start exporting the project----------------------------------"
 					
 						script{
                             
@@ -50,7 +50,7 @@ pipeline
 							{ 
 		   			        sh 'pwd'
 	   	   			        sh 'ls -ltr' 		
-							echo "checkout Assets from DEV"
+							echo "----------------------------------checkout Assets from DEV----------------------------------"
 							script {
 								git branch: 'DEV',
 								credentialsId: 'JigarSAG',
@@ -62,12 +62,12 @@ pipeline
 							
 								if ("${projectName}" == '')
 								{
-									echo "Project name is not given"
+									echo "----------------------------------Project name is not given----------------------------------"
                                 	exit 0
 								}
                             	else
 								{
-									echo "Project name is ${projectName}"
+									echo "----------------------------------Project name is ${projectName}----------------------------------"
 									
 									sh '''								
 
@@ -86,7 +86,6 @@ pipeline
 
 									download_link=$(echo "$importedName" | grep -o '"download_link":"[^"]*' | grep -o '[^"]*$')
 
-									echo download_link
 									##curl --location "$download_link" --output ${projectName}.zip -H 'Content-Type:application/json' -H 'x-HTTP-Method-Override:GET'
 									curl --location --request GET ''$download_link'' --output ${projectName}.zip
 
@@ -100,19 +99,19 @@ pipeline
 									
 									##if [ ! -z "$projContent" ];   then
 									 if [ $projContent -eq 2 ];   then
-										echo "Export of Preoect failed" 
+										echo "----------------------------------Export of Preoect failed----------------------------------" 
 										rm ${projectName}.zip
 										ls -lrt
 										exit 1
 
 									else
-										echo "Export Succeeded"
+										echo "----------------------------------Export Succeeded----------------------------------"
 										ls -lrt								
 									fi
 
-											echo "Project Exported Successfully"
+											echo "----------------------------------Project Exported Successfully----------------------------------"
 											
-											echo "Project File Checkin Started"
+											echo "----------------------------------Project File Checkin Started----------------------------------"
 											
 											echo $(pwd)
 											echo $(ls -lrt)
@@ -129,7 +128,7 @@ pipeline
 											withCredentials([gitUsernamePassword(credentialsId: 'JigarSAG', gitToolName: 'Default')]) {
 														sh "git push -u origin DEV"													
 											}
-											echo "Project File Checkin Started"		
+											echo "----------------------------------Project File Checkin Started----------------------------------"		
 								}	
 						}
 					}               
