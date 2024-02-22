@@ -82,7 +82,7 @@ pipeline
 									echo ${ioIntUrl}
 
 									importedName=$(curl --location --request POST ''${ioIntUrl}'/apis/v1/rest/projects/'${projectName}'/export' \
-												--header 'Authorization: Basic UERWU2VydmljZTpNemRaUFoyTFR4cHRZWSNnMTExZjIzODc0bmtzZGY1JWdzZGJm')
+												--header 'Authorization: 'credentialsId: 'JigarSAG''')
 
 									download_link=$(echo "$importedName" | grep -o '"download_link":"[^"]*' | grep -o '[^"]*$')
 
