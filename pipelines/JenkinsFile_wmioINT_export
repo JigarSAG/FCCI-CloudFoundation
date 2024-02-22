@@ -39,12 +39,12 @@ pipeline
          steps {
 		            sh 'pwd'
 		            sh 'ls -lrt'
-					env.ioIntUrl=LOCAL_DEV_URL
 					
                     echo "Start exporting the project"
+					
 						script{
                             
-							
+							env.ioIntUrl=LOCAL_DEV_URL
 
 			                dir('FCCI-CloudFoundation')
 							{ 
