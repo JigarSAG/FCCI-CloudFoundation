@@ -10,24 +10,17 @@ pipeline {
 	  {  
 	   steps 
 		{
+		  echo "----------------------------------Start Initialize Repo----------------------------------"
+		  
 		  script {
-			echo "${iPaasEnv}"
-
-			source_environment_hostname = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i hostname | cut -d '"' -f2 ''' ).trim()
-			source_environment_port = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i port | cut -d '"' -f2 ''' ).trim()
-		//	admin_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i admin_username | cut -d '"' -f2 ''' ).trim()
-			source_type = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/${wmioenv}.yml | grep -i type | cut -d '"' -f2 ''' ).trim()
-			repo_user = sh ( returnStdout: true, script: '''cat configs/${iPaasEnv}/repo.yml | grep -i user | cut -d '"' -f2 ''' ).trim()
-			ioint_url = "https://${source_environment_hostname}:${source_environment_port}"   
-            //ioint_url="https://shilpadev.int-aws-de.webmethods.io:443"
+				source_environment_hostname = sh ( returnStdout: true, script: '''cat configs/wmioINT/QA.yml | grep -i hostname | cut -d '"' -f2 ''' ).trim()
+				source_environment_port = sh ( returnStdout: true, script: '''cat configs/wmioINT/QA.yml | grep -i port | cut -d '"' -f2 ''' ).trim()
+				targetIoURL = "https://${source_environment_hostname}:${source_environment_port}"        
 			}
 			
-		echo "${source_environment_hostname}"
-		echo "${source_environment_port}"
-    		echo "${admin_user}"
-		echo "${source_type}"
-		echo "${repo_user}"
-		echo "${ioint_url}"
+			echo "${source_environment_hostname}"
+			echo "${source_environment_port}"
+			echo "${targetIoURL}"
 		}
 	   }
 
@@ -38,20 +31,19 @@ pipeline {
                 echo "checkout repo"
                 script{
                             
-							env.inturl=ioint_url
+							env.inturl=targetIoURL
                             echo "io url is ${inturl}"
                             
-                    dir(repoName)
+                    dir('FCCI-CloudFoundation-import')
 		 			{ 
 		   			sh 'pwd'
 	   	   			sh 'ls -ltr' 	
 				
 						script {
-				            git branch: '${branchName}',
-                            credentialsId: 'webm_credentials',
-                            url: 'https://code.medtronic.com/integration_tech/webmethods.io/${repoName}.git'
-
-                            sh "ls -lat"
+									git branch: 'DEV',
+									credentialsId: 'JigarSAG',
+									url: 'https://github.com/JigarSAG/FCCI-CloudFoundation.git'
+									sh "ls -lat"
 				            }
                 
                         echo "check if project zip exists in repo"
@@ -59,11 +51,11 @@ pipeline {
                         sh '''
                         echo $(pwd)
 
-                        cd $iPaasEnv
+                        cd export
 						echo $(pwd)
 						echo $(ls -lrt)
 
-                        cd projectExports_prd
+						cd project
 						echo $(pwd)
 						echo $(ls -lrt)
                         
@@ -86,9 +78,10 @@ pipeline {
                     echo "project file exists, starting to import..."
 
                     curl -v --location $inturl/apis/v1/rest/project-import \
+						--header 'Authorization: Basic Y2lzZXJ2aWNlcHFhOkNMZVZuVnthcjlVUEZOKVleeTM3Z2hzZGYzMjc2VTIzYQ==' \
                         --form project=@${ProjectName}.zip \
-                        --form new_project_name=${ProjectName} -u ${admin_user}:${admin_password}
-                    
+                        --form new_project_name=${ProjectName}
+				
                     
                     echo "Project imported successfully: ${ProjectName}"
                     
