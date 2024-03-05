@@ -69,7 +69,7 @@ pipeline {
 								sh '''
 
 								withCredentials([gitUsernamePassword(credentialsId: 'JigarSAG', gitToolName: 'Default')]) {
-											sh "git push -u origin DEV"													
+											sh "git push -u origin QA"													
 								}
 								
 								echo "Project Copied to Target successfully: ${ProjectName}"
